@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RS - Sistema de Asistencia Híbrido</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -51,22 +51,31 @@
         }
 
         function tomarFotoPC() {
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth || 640;
-            canvas.height = video.videoHeight || 480;
-            const ctx = canvas.getContext('2d');
-            
-            // Efecto espejo natural
-            ctx.translate(canvas.width, 0);
-            ctx.scale(-1, 1);
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            const base64Img = canvas.toDataURL('image/jpeg');
-            
-            // Enmascaramos y enviamos la foto de manera segura al iFrame de Google
-            const iframe = document.getElementById('iframe-google').contentWindow;
-            iframe.postMessage({ tipo: "FOTO_PC", base64: base64Img }, "*");
-        }
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    
+    // Efecto espejo natural
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    const base64Img = canvas.toDataURL('image/jpeg');
+    
+    // Capturamos el iFrame de Google
+    const iframeElement = document.getElementById('iframe-google');
+    if (iframeElement) {
+        const iframeWindow = iframeElement.contentWindow;
+        
+        // CORRECCIÓN: Enviamos la foto asegurando el canal de comunicación activo
+        iframeWindow.postMessage({ tipo: "FOTO_PC", base64: base64Img }, iframeElement.src);
+        
+        console.log("Foto enviada con éxito al formulario de Google Script.");
+    } else {
+        console.error("No se encontró el formulario de Google (iframe-google).");
+    }
+}
     </script>
 </body>
 </html>
